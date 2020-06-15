@@ -1,5 +1,5 @@
 {
-    "name": "dgz_uploader",
+    "name": "DGZ_Uploader/DGZ_uploader",
     "description": "Upload and resize images however you please",
     "type": "library",
     "license": "MIT",
