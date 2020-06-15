@@ -1,0 +1,20 @@
+{
+    "name": "dgz_uploader",
+    "description": "Upload and resize images however you please",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "gustav Ndamukong",
+            "email": "gustavfn@yahoo.co.uk"
+        }
+    ],
+
+    "minimum-stability": "dev",
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "DGZ_Uploader\\": "src/"
+        }
+    }
+}
