@@ -43,8 +43,8 @@
             (both first and second arguments are 'resize' and false by default respectively. This means newly uploaded files will be resized, and if
            	the uploaded file is of the same with a pre-existing file athe upload destination, the new file is renamed and both copies will be kept.
 
-	    -You ca
-	    n upload a file or files and not resize it but make it overwrite previous copies. Do it like so:
+	    -You can upload a file or files and not resize it but make it overwrite previous copies. Do it like so:
+
 		        ```php
 		            $upload->move('original', 'true');
 		        ```
@@ -58,6 +58,14 @@
 		            $upload->move('original', 'false');
 		        ```
 
+		-Here is how you create a config file in app\config to mirror the config file from the package in order to modify and override its config settings
+
+                    ```bash
+                        php artisan vendor:publish
+                    ```
+                    This will create the config file 'dgz_uploader.php' in app\config and there you will find clear guidance notes on how to modify the
+                    file upload settings like set the maximum file size allowed, and the upload folder destination.
+
 
     ## RETRIEVE UPLOADED FILE(S)
 
@@ -67,6 +75,7 @@
 
 		     ```php
 		        $uploader = new \DGZ_Uploader\DGZ_Uploader('default');
+		        $upload->move();
 		        $uploadedFiles = $uploader->getFilenames();
 		        foreach ($uploadedFiles as $file)
 		        {

@@ -49,5 +49,5 @@ return [
     |
     */
 
-    'default' => 'immages/store_imgs/',
+    'default' => 'images/store_imgs/',
 ];
