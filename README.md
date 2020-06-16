@@ -1,5 +1,9 @@
     ## Upload and resize images however you please.
 
+    Get this package by typing the following command in your terminal from the target application directory
+
+            composer require dgz_uploader/dgz_uploader
+
     Uploading is done by calling the constructor of the DGZ_Uploader() like so:
 
             ```php
@@ -14,17 +18,24 @@
 
         -You can choose to upload your image and have it saved in its original form (dimensions) in your specified upload destination folder.
 
+                $upload = new \DGZ_Uploader\DGZ_Uploader('default');
+
+
         -You can specify that the uploaded file be resized by the dimensions you specify in the config file. I have started you off with the size
          10240000000 KB that i like to use myself, but you can always change it:
+
                ```php
                     'maxFileUploadSize' => 10240000000
                ```
 
+
         -You can upload  a file, and have it resized and renamed if a file of the same name previously exists in the destination folder it like so:
+
                 ```php
                     $upload = new \DGZ_Uploader\DGZ_Uploader('default');
                     $upload->move('resize');
                 ```
+
 
             The 'resize' argument gets the image(s) resized by the max upload size you have set for your application in the config file
             (config\dgz_uploader.php)
@@ -32,13 +43,16 @@
             (both first and second arguments are 'resize' and false by default respectively. This means newly uploaded files will be resized, and if
            	the uploaded file is of the same with a pre-existing file athe upload destination, the new file is renamed and both copies will be kept.
 
-	    -You can upload a file or files and not resize it but make it overwrite previous copies. Do it like so:
+	    -You ca
+	    n upload a file or files and not resize it but make it overwrite previous copies. Do it like so:
 		        ```php
 		            $upload->move('original', 'true');
 		        ```
 
+
 	    -You can upload a file or files and not resize them, and not overwrite previous copies. Do it like so:
-		        ```php
+
+		         ```php
 		            $upload->move('original');
 		            OR
 		            $upload->move('original', 'false');
@@ -50,7 +64,8 @@
 	-To get uploaded files, use getFilenames() which returns an array of all uploaded files.
 
 	-To get the names of multiple files uploaded, you can then loop through this array like so:
-		    ```php
+
+		     ```php
 		        $uploader = new \DGZ_Uploader\DGZ_Uploader('default');
 		        $uploadedFiles = $uploader->getFilenames();
 		        foreach ($uploadedFiles as $file)
@@ -59,7 +74,9 @@
 		        }
 		    ```
 
+
 	-To get the name of a single file uploaded if you only uploaded one file, just grap the file at the first index e.g.
+
 			````php
 			    $uploader = new \DGZ_Uploader\DGZ_Uploader('default');
 			    $singleUploaded file = $uploader->getFilenames()[0];

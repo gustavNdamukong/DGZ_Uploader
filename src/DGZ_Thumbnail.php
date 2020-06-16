@@ -1,6 +1,6 @@
 <?php
 
-namespace DGZ_library\uploadresizeto1folder;
+namespace DGZ_Uploader;
 
 class DGZ_Thumbnail {
   protected $_original;
