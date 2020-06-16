@@ -1,3 +1,5 @@
+    [![Issues] (https://img.shields.io/github/issues/gustavNdamukong/DGZ_Uploader?style=flat-square)](https:github.com/gustavNdamukong/DGZ_Uploader/issues)
+
     ## Upload and resize images however you please.
 
     Get this package by typing the following command in your terminal from the target application directory
