@@ -16,5 +16,12 @@
         "psr-4": {
             "DGZ_Uploader\\": "src/"
         }
+    },
+    "extra":{
+        "laravel":{
+            "providers": [
+                "DGZ_Uploader\\DGZ_UploaderServiceProvider"
+            ]
+        }
     }
 }
