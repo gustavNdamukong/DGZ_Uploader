@@ -1,6 +1,7 @@
 <?php
+namespace DGZ_Uploader;
+use Illuminate\Support\Facades\Redirect;
 
-namespace DGZ_library\uploadresizeto1folder;
 
 class DGZ_Upload {
 	
@@ -12,8 +13,6 @@ class DGZ_Upload {
 
 
 
-  //protected $_secondThumbDestiny;
-  //protected $_secondThumbSize;
   protected $_max = 51200;
 
 
@@ -40,23 +39,12 @@ class DGZ_Upload {
   public function __construct($path) {
 	  try {
 		  if (!is_dir($path) || !is_writable($path)) {
-			  //throw new \DGZ_Exception("$path must be a valid, writable directory.");
-			  throw new \DGZ_library\DGZ_Exception("$path must be a valid, writable directory.");
+			  throw new \InvalidArgumentException("$path must be a valid, writable directory.");
 		  }
 	  }
-	  catch (\Exception $e)
+	  catch (\InvalidArgumentException $e)
 	  {
-		  // Is this a DGZ_Exception?
-		  if ($e instanceof \DGZ_library\DGZ_Exception) {
-
-			  $view = \DGZ_library\DGZ_View::getView('DGZExceptionView', null, 'html');
-			  $view->show($e);
-		  }
-		  else {
-			  // If it's a normal exception then just use the default view
-			  $view = \DGZ_library\DGZ_View::getView('ExceptionView', null, 'html');
-			  $view->show($e);
-		  }
+		  return Redirect::back()->withErrors(['Error', $e->getMessage()]);
 	  }
 	$this->_destination = $path;
 	$this->_uploaded = $_FILES;
@@ -67,13 +55,9 @@ class DGZ_Upload {
 
 
 
-
-
   public function getMaxSize() {
 	return number_format($this->_max/1024, 1) . 'kB';
   }
-
-
 
 
 
@@ -90,29 +74,29 @@ class DGZ_Upload {
 
 
 
-
-
-
-
-  public function move($overwrite = false) {
+	/*
+	 * Upload the file
+	 * @param String $modify either 'original' to upload the file as is, or 'resize' to resize the file upon uploading
+	 * @param Boolean $overwrite to determine whether to replace any previous copy of the file at the destination, or to rename and keep both
+	 *
+	 */
+  public function move($modify = 'resize',$overwrite = false) {
 	$path = $this->_destination;
-	//$secondThumbDestiny = $this->_secondThumbDestiny;
-	//$secondThumbSize = $this->_secondThumbSize;
-	$field = current($this->_uploaded);
-	if (is_array($field['name'])) {
-	  foreach ($field['name'] as $number => $filename) {
-		// process multiple upload
-		$this->_renamed = false;
-		$this->processFile($filename, $field['error'][$number], $field['size'][$number], $field['type'][$number], $field['tmp_name'][$number], $path, $overwrite); 
-	  }
-	} else {
-	  $this->processFile($field['name'], $field['error'], $field['size'], $field['type'], $field['tmp_name'], $path, $overwrite);
+
+	if ($this->_uploaded) {
+		$field = current($this->_uploaded);
+		if (is_array($field['name'])) {
+			foreach ($field['name'] as $number => $filename) {
+				// process multiple upload
+				$this->_renamed = false;
+				$this->processFile($filename, $field['error'][$number], $field['size'][$number], $field['type'][$number], $field['tmp_name'][$number], $path, $modify, $overwrite);
+			}
+		}
+		else {
+			$this->processFile($field['name'], $field['error'], $field['size'], $field['type'], $field['tmp_name'], $path, $modify, $overwrite);
+		}
 	}
   }
-
-
-
-
 
 
 
@@ -122,10 +106,6 @@ class DGZ_Upload {
   public function getMessages() {
 	return $this->_messages;
   }
-
-
-
-
 
 
 
@@ -156,9 +136,6 @@ class DGZ_Upload {
 
 
 
-
-
-
   protected function checkSize($filename, $size) {
 	if ($size == 0) {
 	  return false;
@@ -169,9 +146,6 @@ class DGZ_Upload {
 	  return true;
 	}
   }
-
-
-
 
 
 
@@ -193,10 +167,6 @@ class DGZ_Upload {
 
 
 
-
-
-
-
   public function addPermittedTypes($types) {
 	$types = (array) $types;
     $this->isValidMime($types);
@@ -208,16 +178,9 @@ class DGZ_Upload {
 
 
 
-
-
-
   public function getFilenames() {
 	return $this->_filenames;
   }
-
-
-
-
 
 
 
@@ -240,12 +203,14 @@ class DGZ_Upload {
 
 
 
-
-
-
-
-
-  protected function checkName($name, $overwrite) {
+	/*
+	 * Checks if a file with the same name previously exists in the upload destination and overwrites the previous file if $overwrite is true
+	 * or renames the uploaded file and keeps both files if $overwrite is false
+	 *
+	 * @param variable $name name of uploaded file
+	 * @param Boolean $overwrite true or false whether to replace existing file or not
+	 */
+  protected function createFileName($name, $overwrite) {
 	  
 	  //get rid of any blank space in the submitted file name
 	  $nospaces = str_replace(' ', '_', $name);
@@ -292,20 +257,20 @@ class DGZ_Upload {
 
 
 
-
-
 	
-  protected function processFile($filename, $error, $size, $type, $tmp_name, $path, $overwrite) {
+  protected function processFile($filename, $error, $size, $type, $tmp_name, $path, $modify, $overwrite) {
 	$OK = $this->checkError($filename, $error);
 	if ($OK) {
 	  $sizeOK = $this->checkSize($filename, $size);
 	  $typeOK = $this->checkType($filename, $type);
 	  if ($sizeOK && $typeOK) {
-		$name = $this->checkName($filename, $overwrite);
-		$success = move_uploaded_file($tmp_name, $this->_destination . $name);
+		$name = $this->createFileName($filename, $overwrite);
+		$success = move_uploaded_file($tmp_name, $path . $name);
 		if ($success) {
-	      // add the amended filename to the array of file names
-	      $this->_filenames[] = $name;
+			// add the amended filename to the array of file names and also record the name of the last uploaded file in case the developer needs to know
+			$this->_filenames[] = $name;
+			$this->_uploadedfile = $name;
+
 			$message = "$filename uploaded successfully";
 			if ($this->_renamed) {
 			  $message .= " and renamed $name";
