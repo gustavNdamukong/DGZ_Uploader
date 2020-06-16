@@ -265,7 +265,6 @@ class DGZ_Upload {
 	  $typeOK = $this->checkType($filename, $type);
 	  if ($sizeOK && $typeOK) {
 		$name = $this->createFileName($filename, $overwrite);
-		/////$success = move_uploaded_file($tmp_name, $this->_destination . $name);
 		$success = move_uploaded_file($tmp_name, $path . $name);
 		if ($success) {
 			// add the amended filename to the array of file names and also record the name of the last uploaded file in case the developer needs to know
