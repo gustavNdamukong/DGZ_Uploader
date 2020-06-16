@@ -1,4 +1,4 @@
-    [![Issues] (https://img.shields.io/github/issues/gustavNdamukong/DGZ_Uploader?style=flat-square)](https:github.com/gustavNdamukong/DGZ_Uploader/issues)
+    [![Issues] (https://img.shields.io/github/issues/gustavNdamukong/DGZ_Uploader?style=flat-square)]
 
     ## Upload and resize images however you please.
 
