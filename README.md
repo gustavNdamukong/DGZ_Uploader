@@ -1,4 +1,8 @@
-    <img src="https://img.shields.io/github/issues/gustavNdamukong/DGZ_Uploader?style=flat-square" />
+
+    [![issues](https://img.shields.io/github/issues/gustavNdamukong/DGZ_Uploader)])(https://github.com/gustavNdamukong/DGZ_Uploader/issues)
+    [![forks](https://img.shields.io/github/forks/gustavNdamukong/DGZ_Uploader)])(https://github.com/gustavNdamukong/DGZ_Uploader)
+    [![stars](https://img.shields.io/github/stars/gustavNdamukong/DGZ_Uploader)])(https://github.com/gustavNdamukong/DGZ_Uploader)
+    [![license](https://img.shields.io/github/license/gustavNdamukong/DGZ_Uploader)])(https://github.com/gustavNdamukong/DGZ_Uploader)
 
     ## Upload and resize images however you please.
 
