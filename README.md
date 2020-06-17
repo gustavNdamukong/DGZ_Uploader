@@ -3,7 +3,7 @@
 ![stars](https://img.shields.io/github/stars/gustavNdamukong/DGZ_Uploader)
 ![license](https://img.shields.io/github/license/gustavNdamukong/DGZ_Uploader)
 
-## UPLOAD AND RESIZE IMAGES HOWEVER YOU PLEASE.
+## UPLOAD AND RESIZE IMAGES IN LARAVEL HOWEVER YOU PLEASE.
 
 Get this package by typing the following command in your terminal from the target application directory
 
