@@ -80,7 +80,7 @@ class DGZ_Upload {
 	 * @param Boolean $overwrite to determine whether to replace any previous copy of the file at the destination, or to rename and keep both
 	 *
 	 */
-  public function move($modify = 'resize',$overwrite = false) {
+  public function move($modify = 'original',$overwrite = false) {
 	$path = $this->_destination;
 
 	if ($this->_uploaded) {
@@ -265,11 +265,11 @@ class DGZ_Upload {
 	  $typeOK = $this->checkType($filename, $type);
 	  if ($sizeOK && $typeOK) {
 		$name = $this->createFileName($filename, $overwrite);
+
 		$success = move_uploaded_file($tmp_name, $path . $name);
 		if ($success) {
-			// add the amended filename to the array of file names and also record the name of the last uploaded file in case the developer needs to know
+			// add the amended filename to the array of file names
 			$this->_filenames[] = $name;
-			$this->_uploadedfile = $name;
 
 			$message = "$filename uploaded successfully";
 			if ($this->_renamed) {

@@ -14,13 +14,20 @@ class DGZ_Uploader extends DGZ_Upload {
   protected $_deleteOriginal;
 
 
-  //protected $_suffix = '_thb';
 
 
 
 
 
-
+	/**
+	 * This constructor takes two arguments; the upload destination folder as a string, and a boolean whether to delete a previous copy of the same file
+	 * if one is found, or rename the new one and keep both files.
+	 *
+	 * @param $path string
+	 * @param $deleteOriginal Boolean
+	 *
+	 * @return void
+	 */
    public function __construct($path, $deleteOriginal = false) {
 
 	   //set upload path dynamically
@@ -136,7 +143,7 @@ class DGZ_Uploader extends DGZ_Upload {
 						}
 						$this->_messages[] = $message;
 					}
-					// create a thumbnail from the uploaded image if $modify = 'resize'
+					// create a thumbnail from the uploaded image if $modify == 'resize'
 					if ($modify == 'resize') {
 						$this->createThumbnail($this->_destination . $name);
 					}
