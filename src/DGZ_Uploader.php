@@ -11,7 +11,6 @@ class DGZ_Uploader extends DGZ_Upload {
   protected $_thumbDestination;
 
 
-  protected $_deleteOriginal;
 
 
 
@@ -24,14 +23,15 @@ class DGZ_Uploader extends DGZ_Upload {
 	 * if one is found, or rename the new one and keep both files.
 	 *
 	 * @param $path string
-	 * @param $deleteOriginal Boolean
+	 * @param $uniqeSubFolder string (optional) that will contain the a sub-folder name for cases where unique records have their own sub folders, for example;
+	 * 	the images of a listed item in an e-commerce application.
 	 *
 	 * @return void
 	 */
-   public function __construct($path, $deleteOriginal = false) {
+   public function __construct($path, $uniqeSubFolder = '') {
 
-	   //set upload path dynamically
-	   $destination = config("dgz_uploader.$path");
+	   //set upload path dynamically (value of $path is for example 'gallery')
+	   $destination = trim(config("dgz_uploader.$path").$uniqeSubFolder);
 
 	   //set the file size
 	   $maxFileUploadSize = config('dgz_uploader.maxFileUploadSize');
@@ -40,7 +40,6 @@ class DGZ_Uploader extends DGZ_Upload {
 
 	parent::__construct($destination);
 	$this->_thumbDestination = $destination;
-	$this->_deleteOriginal = $deleteOriginal;
   }
 
 
@@ -133,24 +132,20 @@ class DGZ_Uploader extends DGZ_Upload {
 				  $name = $this->createFileName($filename, $overwrite);
 				  $success = move_uploaded_file($tmp_name, $this->_destination . $name);
 				  if ($success) {
-					// Check if the original large email is marked to be cleared later n don't add an 'upload success' message if it does
-					if (!$this->_deleteOriginal) {
-						// add the amended filename to the array of file names
-						$this->_filenames[] = $name;
-						$message = "$filename uploaded successfully";
-						if ($this->_renamed) {
-							$message .= " and renamed $name";
-						}
-						$this->_messages[] = $message;
+					// add the amended filename to the array of file names
+					$this->_filenames[] = $name;
+					$message = "$filename uploaded successfully";
+					if ($this->_renamed) {
+						$message .= " and renamed $name";
 					}
+					$this->_messages[] = $message;
+
 					// create a thumbnail from the uploaded image if $modify == 'resize'
+					//it is possible to modify this script here so that a thumbnail is created in a different location while
+					  //preserving the earlier uploaded large file
 					if ($modify == 'resize') {
 						$this->createThumbnail($this->_destination . $name);
 					}
-					//delete the uploaded image if required
-					//if ($this->_deleteOriginal) {
-					//unlink($this->_destination . $name);
-					//}
 				  }
 				  else {
 						$this->_messages[] = "Could not upload $filename";

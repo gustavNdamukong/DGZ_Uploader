@@ -13,13 +13,23 @@ Uploading is done by calling the constructor of the DGZ_Uploader() like so:
 
         ```php
             $upload = new \DGZ_Uploader\DGZ_Uploader('default');
+            OR
+            $upload = new \DGZ_Uploader\DGZ_Uploader('gallery');
         ```
 
 There are only two parts to this package class you need to worry about; the constructor and the move() method:
-        i) The DGZ_Uploader($path)
-        ii) The move($modify = 'original', $overwrite = false)
+       		-i) The DGZ_Uploader($path, $uniqueSubfolder = '')
+        	-ii) The move($modify = 'original', $overwrite = false)
 
-    This constructor takes a string of the upload destination folder ($path). This is all it needs; you call it and tell it where to upload your file(s) to.
+	This constructor takes two arguments
+		a) a string $path which is the key of the upload destination folder as you have setup in your config file (settings.php). You are
+		    telling it where to upload your file(s) to.This could be 'gallery', 'default' etc.
+		b) Optionally, you can pass it a second argument which is a subfolder. Thgis could be handy for example in e-commerce applications
+		    where the images of a unique listed item have a folder of the item name, or it could be a specific album in an image gallery.
+		    In that case just call the uploader like so:
+
+			DGZ_Uploader('gallery', albumName);
+
     The move() method does the uploading, and it is where you specify whether to resize your images and whether to rename or overwrite duplicate copies
         of the images. It therefore takes two arguments;
         a) An optional string $modify which specifies whether to upload the image as it is ('original') or to resize it ('resize'). By default, this is

@@ -50,4 +50,5 @@ return [
     */
 
     'default' => 'images/store_imgs/',
+
 ];
