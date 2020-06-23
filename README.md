@@ -24,7 +24,7 @@ There are only two parts to this package class you need to worry about; the cons
 	This constructor takes two arguments
 		a) a string $path which is the key of the upload destination folder as you have setup in your config file (settings.php). You are
 		    telling it where to upload your file(s) to.This could be 'gallery', 'default' etc.
-		b) Optionally, you can pass it a second argument which is a subfolder. Thgis could be handy for example in e-commerce applications
+		b) Optionally, you can pass it a second argument which is a subfolder. This could be handy for example in e-commerce applications
 		    where the images of a unique listed item have a folder of the item name, or it could be a specific album in an image gallery.
 		    In that case just call the uploader like so:
 
@@ -32,8 +32,14 @@ There are only two parts to this package class you need to worry about; the cons
 
     The move() method does the uploading, and it is where you specify whether to resize your images and whether to rename or overwrite duplicate copies
         of the images. It therefore takes two arguments;
-        a) An optional string $modify which specifies whether to upload the image as it is ('original') or to resize it ('resize'). By default, this is
-            set to 'original'. So, this DGZ_Uploader package is designed to not resize your images unless you tell it to.
+        a) An optional string $modify which can contain one of three values;
+            i) 'original': whether to upload the file as it is ('original'),
+            ii) 'original-allow': whether to upload the file as is and perform no size or file type checks,
+            iii) 'resize': whether to upload the file and resize it.
+
+            By default, $modify is set to 'original'. So, this DGZ_Uploader package is designed to not resize your images unless you tell it to, though
+            it will check that the file conforms to the specified file size and MIME type allowed by the application.
+
         b) An optional Boolean $overwrite which specifies whether to delete a previous copy of the same file if one is found, or rename the new one and
             keep both files.
 
@@ -45,7 +51,7 @@ There are only two parts to this package class you need to worry about; the cons
             'default' => 'images/store_imgs/',
 
         For example, if you want to set a separate upload destination for your image gallery, you can set that in your config file (config\dgz_uploader.php)
-        like so:
+        like so (the trailing slash at the end is very important):
 
             'gallery' => 'images/gallery/'
 
@@ -108,13 +114,33 @@ There are only two parts to this package class you need to worry about; the cons
                 $upload->move('original', 'false');
             ```
 
+
+## -What types of files can you upload to your application
+            At the moment, the DGZ_Uploader allows you to upload the following image file types:
+
+            image/gif,
+            image/jpeg,
+            image/jpg,
+            image/png;
+
+       But you can upload other file types like videos, and audio files etc. Just remember to bypass the check for allowed file types as mentioned
+       above by passing 'original-allow' to the move() when you call it to upload the file. For example, to upload a video file:
+
+            ```php
+                $upload = new DGZ_Uploader('videoUploadDir', $genreFolder);
+                $upload->move('original-allow');
+            ```
+
 ## -How you create a config file in app\config to mirror the config file from the package in order to modify and override its config settings
 
                 ```bash
                     php artisan vendor:publish
                 ```
             This will create the config file 'dgz_uploader.php' in app\config and there you will find clear guidance notes on how to modify the
-              file upload settings like set the maximum file size allowed, and the upload folder destination.
+              file upload settings. There are only two options you can set in the configuration file:
+
+                i) The size that resized images will be resized to (if you choose to resize upon upload).
+                ii) The upload destination directory path.
 
 
 
@@ -138,10 +164,28 @@ There are only two parts to this package class you need to worry about; the cons
 
 ## -To get the name of a single file uploaded-if you only uploaded one file, just grab the file at the first index e.g.
 
-        ````php
+        ```php
             $uploader = new \DGZ_Uploader\DGZ_Uploader('default');
             $singleUploaded file = $uploader->getFilenames()[0];
         ```
 
+## -Find out what went wrong if the upload process stalls
+    If something went wrong in the upload process and you file was not uploaded, it may fail silently leaving you with no clue as to what went wrong.
+    Fortunately, this system stores useful error messages in a messages array which you can access to have complete clarity on anything that can go wrong.
+
+    The recommended way to use this program is to check first if the file was uploaded and if not, retrieve the in-built error messages like so:
+
+        ```php
+            //check if uploading was successful
+            if ($upload->getFilenames()[0])
+            {
+                $newFilename = $upload->getFilenames()[0];
+            }
+            else
+            {
+                //redirect with error
+                return Redirect::back()->withErrors(['Error', $upload->getMessages()]);
+            }
+        ```
 
 

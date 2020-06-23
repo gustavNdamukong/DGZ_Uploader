@@ -24,14 +24,20 @@ class DGZ_Uploader extends DGZ_Upload {
 	 *
 	 * @param $path string
 	 * @param $uniqeSubFolder string (optional) that will contain the a sub-folder name for cases where unique records have their own sub folders, for example;
-	 * 	the images of a listed item in an e-commerce application.
+	 * 	the images of a listed item in an e-commerce application. Take note that just like with the $path value; the trailing slash appended to $uniqeSubFolder is crucial.
 	 *
 	 * @return void
 	 */
    public function __construct($path, $uniqeSubFolder = '') {
 
 	   //set upload path dynamically (value of $path is for example 'gallery')
-	   $destination = trim(config("dgz_uploader.$path").$uniqeSubFolder);
+	   if ($uniqeSubFolder != '') {
+		   $destination = trim(config("dgz_uploader.$path") . $uniqeSubFolder . '/');
+	   }
+	   else
+	   {
+		   $destination = config("dgz_uploader.$path") ;
+	   }
 
 	   //set the file size
 	   $maxFileUploadSize = config('dgz_uploader.maxFileUploadSize');
@@ -126,8 +132,18 @@ class DGZ_Uploader extends DGZ_Upload {
 	  {
 		  $OK = $this->checkError($filename, $error);
 		  if ($OK) {
-			  $sizeOK = $this->checkSize($filename, $size);
-			  $typeOK = $this->checkType($filename, $type);
+
+			  if ($modify == 'original-allow')
+			  {
+				  $sizeOK = true;
+				  $typeOK = true;
+			  }
+			  else
+			  {
+				  $sizeOK = $this->checkSize($filename, $size);
+				  $typeOK = $this->checkType($filename, $type);
+			  }
+
 			  if ($sizeOK && $typeOK) {
 				  $name = $this->createFileName($filename, $overwrite);
 				  $success = move_uploaded_file($tmp_name, $this->_destination . $name);

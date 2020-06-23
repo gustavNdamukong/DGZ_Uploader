@@ -23,7 +23,7 @@ class DGZ_Upload {
 
   protected $_permitted = array('image/gif',
 								'image/jpeg',
-								'image/pjpeg',
+								'image/jpg',
 								'image/png');
   protected $_renamed = false;
 
