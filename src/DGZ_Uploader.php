@@ -9,11 +9,8 @@ use DGZ_Uploader\DGZ_Thumbnail;
 class DGZ_Uploader extends DGZ_Upload {
 
   protected $_thumbDestination;
-
-
-
-
-
+  protected $_thumbMaxSize = 500;
+  protected $_suffix = '_thb';
 
 
 
@@ -51,45 +48,56 @@ class DGZ_Uploader extends DGZ_Upload {
 
 
 
+  /**
+   * Set the maximum pixel dimension for generated thumbnails (default: 500).
+   * The thumbnail is scaled proportionally so neither width nor height exceeds this value.
+   * Call before move('resize').
+   *
+   * @param int $size
+   * @return $this
+   */
+  public function setThumbMaxSize(int $size): self {
+	$this->_thumbMaxSize = abs($size);
+	return $this;
+  }
 
 
 
-  public function setThumbDestination($path, $secondThumbDestiny) {
+
+  /**
+   * Direct thumbnails to a different folder from the originals.
+   * Call before move().
+   *
+   * @param string $path  Absolute path to a writable directory.
+   */
+  public function setThumbDestination($path) {
 	if (!is_dir($path) || !is_writable($path)) {
-	  throw new Exception("$path must be a valid, writable directory.");
+	  throw new \Exception("$path must be a valid, writable directory.");
 	} else {
-		$this->_thumbDestination = $path; }
-	if ($this->_secondThumb) {
-		if (!is_dir($secondThumbDestiny) || !is_writable($secondThumbDestiny)) {
-			throw new Exception("$secondThumbDestiny must be a valid, writable directory.");
-		} else {
-			$this->_secondThumbDestiny = $secondThumbDestiny; }
+		$this->_thumbDestination = $path;
 	}
   }
 
 
 
 
-
-
-
-
-
+  /**
+   * Set the suffix appended to thumbnail filenames (default: '_thb').
+   * Pass an empty string to omit the suffix entirely.
+   *
+   * @param string $suffix
+   */
   public function setThumbSuffix($suffix) {
-	//if (preg_match('/\w+/', $suffix)) {
-	  //if (strpos($suffix, '_') !== 0) {
-	  // $this->_suffix = '_' . $suffix;
-	  //} else {
-		//$this->_suffix = $suffix;
-	  //}
-	//} else {
+	if (preg_match('/^\w+$/', $suffix)) {
+	  if (strpos($suffix, '_') !== 0) {
+		$this->_suffix = '_' . $suffix;
+	  } else {
+		$this->_suffix = $suffix;
+	  }
+	} else {
 	  $this->_suffix = '';
-	//}
+	}
   }
-
-
-
-
 
 
 
@@ -97,15 +105,12 @@ class DGZ_Uploader extends DGZ_Upload {
   protected function createThumbnail($image) {
 	$thumb = new DGZ_Thumbnail($image);
 	$thumb->setDestination($this->_thumbDestination);
-	//$thumb->setSuffix($this->_suffix);
+	$thumb->setMaxSize($this->_thumbMaxSize);
+	$thumb->setSuffix($this->_suffix);
 	$thumb->create();
 	$messages = $thumb->getMessages();
 	$this->_messages = array_merge($this->_messages, $messages);
   }
-
-
-
-
 
 
 
@@ -116,6 +121,10 @@ class DGZ_Uploader extends DGZ_Upload {
 	 * Having extended the DGZ_Upload parent class, notice how it calls the createThumbnail() method to generate a thumbnail from the uploaded image;
 	 * something its parent class does not do. The parent class only does an upload, that's it. So the DGZ_Thumbnail class which the createThumbnail instantiates behind the scenes
 	 * was a class created just for this child class's use, so that it basically extends its parent's function of merely uploading, to uploading and thumbnail creation.
+	 *
+	 * move('original')       — upload only, no thumbnail (image types only, size-checked)
+	 * move('original-allow') — upload only, no validation (use in admin areas; allows any type)
+	 * move('resize')         — upload original + auto-generate _thb thumbnail in one step
 	 *
 	 * @param $filename
 	 * @param $error
@@ -157,8 +166,6 @@ class DGZ_Uploader extends DGZ_Upload {
 					$this->_messages[] = $message;
 
 					// create a thumbnail from the uploaded image if $modify == 'resize'
-					//it is possible to modify this script here so that a thumbnail is created in a different location while
-					  //preserving the earlier uploaded large file
 					if ($modify == 'resize') {
 						$this->createThumbnail($this->_destination . $name);
 					}
