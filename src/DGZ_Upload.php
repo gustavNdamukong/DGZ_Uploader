@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Redirect;
 
 
 class DGZ_Upload {
-	
+
   protected $_uploaded = array();
 
 
@@ -23,15 +23,15 @@ class DGZ_Upload {
 
   protected $_permitted = array('image/gif',
 								'image/jpeg',
+								'image/pjpeg',
 								'image/jpg',
-								'image/png');
+								'image/png',
+								'image/webp');
   protected $_renamed = false;
 
 
 
   protected $_filenames = array();
-
-
 
 
 
@@ -53,8 +53,6 @@ class DGZ_Upload {
 
 
 
-
-
   public function getMaxSize() {
 	return number_format($this->_max/1024, 1) . 'kB';
   }
@@ -62,13 +60,30 @@ class DGZ_Upload {
 
 
 
-
-
-  public function setMaxSize($num) {
-	if (!is_numeric($num)) {
-	  throw new Exception("Maximum size must be a number.");
+  /**
+   * Set the maximum permitted upload file size.
+   *
+   * Accepts a human-readable string or a raw integer (bytes).
+   *
+   * String examples (case-insensitive, space optional):
+   *     '50KB'   '50 KB'   '5MB'   '5 MB'   '5.5MB'   '1GB'   '1.5 GB'
+   *
+   * Raw integer (bytes) also accepted for backwards compatibility:
+   *     5 * 1024 * 1024   (5 MB)
+   *
+   * @param int|string $size
+   */
+  public function setMaxSize($size) {
+	if (is_string($size) && preg_match('/^\s*(\d+\.?\d*)\s*(KB|MB|GB|B)?\s*$/i', $size, $m)) {
+		$value = (float) $m[1];
+		$unit  = strtoupper($m[2] ?? 'B');
+		$multipliers = ['B' => 1, 'KB' => 1024, 'MB' => 1048576, 'GB' => 1073741824];
+		$this->_max = (int) round($value * $multipliers[$unit]);
+	} elseif (is_numeric($size)) {
+		$this->_max = (int) $size;
+	} else {
+		throw new \Exception("Invalid size value '$size'. Use a number (bytes) or a string like '5MB', '500KB', '1.5GB'.");
 	}
-	$this->_max = (int) $num;
   }
 
 
@@ -101,8 +116,6 @@ class DGZ_Upload {
 
 
 
-
-
   public function getMessages() {
 	return $this->_messages;
   }
@@ -110,7 +123,6 @@ class DGZ_Upload {
 
 
 
-  
   protected function checkError($filename, $error) {
 	switch ($error) {
 	  case 0:
@@ -134,8 +146,6 @@ class DGZ_Upload {
 
 
 
-
-
   protected function checkSize($filename, $size) {
 	if ($size == 0) {
 	  return false;
@@ -151,7 +161,6 @@ class DGZ_Upload {
 
 
 
-  
   protected function checkType($filename, $type) {
 	if (empty($type)) {
 	  return false;
@@ -166,7 +175,6 @@ class DGZ_Upload {
 
 
 
-
   public function addPermittedTypes($types) {
 	$types = (array) $types;
     $this->isValidMime($types);
@@ -176,29 +184,61 @@ class DGZ_Upload {
 
 
 
-
-
   public function getFilenames() {
 	return $this->_filenames;
   }
 
+
+  /**
+   * Returns the file extension of the given filename (without the dot).
+   *
+   *     DGZ_Upload::extension('sunset.jpg')      // 'jpg'
+   *     DGZ_Upload::extension('photo.PNG')       // 'PNG'
+   *     $uploader->extension($filenames[0])      // instance call also works
+   *
+   * @param  string $filename  Filename or full path.
+   * @return string
+   */
+  public static function extension(string $filename): string {
+	return pathinfo($filename, PATHINFO_EXTENSION);
+  }
+
+
+  /**
+   * Derives the thumbnail filename from an original filename.
+   * Assumes the default '_thb' suffix unless you pass a custom one.
+   *
+   *     DGZ_Upload::thumbName('sunset.jpg')          // 'sunset_thb.jpg'
+   *     DGZ_Upload::thumbName('hero.PNG', '_sm')     // 'hero_sm.PNG'
+   *     $uploader->thumbName($filenames[0])          // instance call also works
+   *
+   * @param  string $filename  Original filename (not a full path).
+   * @param  string $suffix    Thumbnail suffix. Must match whatever was passed
+   *                           to DGZ_Thumbnail::setSuffix() — default '_thb'.
+   * @return string
+   */
+  public static function thumbName(string $filename, string $suffix = '_thb'): string {
+	$ext  = pathinfo($filename, PATHINFO_EXTENSION);
+	$base = pathinfo($filename, PATHINFO_FILENAME);
+	return $base . $suffix . ($ext !== '' ? '.' . $ext : '');
+  }
 
 
 
 
   protected function isValidMime($types) {
     $alsoValid = array('image/tiff',
+					   'image/webp',
 				       'application/pdf',
 				       'text/plain',
 				       'text/rtf');
   	$valid = array_merge($this->_permitted, $alsoValid);
 	foreach ($types as $type) {
 	  if (!in_array($type, $valid)) {
-		throw new Exception("$type is not a permitted MIME type");
+		throw new \Exception("$type is not a permitted MIME type");
 	  }
 	}
   }
-
 
 
 
@@ -211,7 +251,7 @@ class DGZ_Upload {
 	 * @param Boolean $overwrite true or false whether to replace existing file or not
 	 */
   protected function createFileName($name, $overwrite) {
-	  
+
 	  //get rid of any blank space in the submitted file name
 	  $nospaces = str_replace(' ', '_', $name);
 	  //mark the file as renamed if that changed the name from what was submitted
@@ -222,7 +262,7 @@ class DGZ_Upload {
 		$existing = scandir($this->_destination);
 		//check if an image with that name already exists
 		if (in_array($nospaces, $existing)) {
-		//if the filename already exists, we need to rename the file, so let's start by finding the character number of the '.' character	
+		//if the filename already exists, we need to rename the file, so let's start by finding the character number of the '.' character
 		$dot = strrpos($nospaces, '.');
 		if ($dot) {
 			//get the name of the file up to but without the dot
@@ -234,14 +274,8 @@ class DGZ_Upload {
 			$base = $nospaces;
 		  	$extension = '';
 		}
-		//Now proceed to rename the file
-		//we use a do while loop because we may be renaming multiple files from a multiple file upload, otherwise it will be just the one file being renamed,
-		// hence the choice of do..while loop which will run at least once	
-		$i = 1; 
+		$i = 1;
 		do {
-			//we rename the file by adding an underscore and an incremented number (e.g. gus_2) to the basename (before the extension)
-			//notice how we commence by incrementing the number after the underscore by one ($i++). The initial 1 value of $i is to indicate that we're uploading a second version of that same file
-			//but the while loop below will also ensure that the renamed file has an incremented number for as long as it finds another file existing in the destination folder
 			$nospaces = $base . '_' . $i++ . $extension;
 		} while (in_array($nospaces, $existing));
 			//mark the file as renamed
@@ -256,8 +290,6 @@ class DGZ_Upload {
 
 
 
-
-	
   protected function processFile($filename, $error, $size, $type, $tmp_name, $path, $modify, $overwrite) {
 	$OK = $this->checkError($filename, $error);
 	if ($OK) {
