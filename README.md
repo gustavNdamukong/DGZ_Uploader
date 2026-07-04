@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/images/dgz_uploader.png" alt="DGZ_Uploader" width="320">
+</p>
+
 ![issues](https://img.shields.io/github/issues/gustavNdamukong/DGZ_Uploader)
 ![forks](https://img.shields.io/github/forks/gustavNdamukong/DGZ_Uploader)
 ![stars](https://img.shields.io/github/stars/gustavNdamukong/DGZ_Uploader)
