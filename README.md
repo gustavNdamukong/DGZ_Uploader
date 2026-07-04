@@ -21,7 +21,7 @@ The package is built around three classes that layer on top of each other:
 
 - PHP >= 7.4 (PHP 8.x recommended)
 - Laravel 8 or later
-- GD extension enabled (`extension=gd` in `php.ini`) — required for thumbnail generation
+- **GD extension enabled** (`extension=gd` in `php.ini`), with support for the image formats you upload (PNG, JPEG, GIF, WebP) — required for thumbnail generation. Without GD you'll get a fatal `Call to undefined function ...imagecreatefrompng()` at upload time. On shared / cPanel hosting, enable it under **Select PHP Version → Extensions → `gd`**.
 
 ---
 

@@ -12,7 +12,9 @@
     ],
 
     "minimum-stability": "dev",
-    "require": {},
+    "require": {
+        "ext-gd": "*"
+    },
     "autoload": {
         "psr-4": {
             "DGZ_Uploader\\": "src/"
