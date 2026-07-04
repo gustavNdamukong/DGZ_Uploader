@@ -471,3 +471,9 @@ public function store(Request $request)
 ## License
 
 MIT
+
+---
+
+## Credits
+
+An open-source package by [Nolimit Media](https://nolimitmedia.ca).
