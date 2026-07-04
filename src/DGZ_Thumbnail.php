@@ -157,8 +157,13 @@ class DGZ_Thumbnail {
 
 	imagecopyresampled($thumb, $resource, 0, 0, 0, 0, $this->_thumbwidth, $this->_thumbheight, $this->_originalwidth, $this->_originalheight);
 	$newname = $this->_name . $this->_suffix;
+
+	// Preserve the original file extension so thumbnail filenames stay consistent
+	// with what callers expect (e.g. photo.jpeg → photo_thb.jpeg, not photo_thb.jpg).
+	$originalExt = strtolower(pathinfo($this->_original, PATHINFO_EXTENSION)) ?: 'jpg';
+
 	if ($this->_imageType == 'jpeg') {
-	  $newname .= '.jpg';
+	  $newname .= '.' . $originalExt;
 	  $success = imagejpeg($thumb, $this->_destination . $newname, $this->_quality);
 	} elseif ($this->_imageType == 'png') {
 	  $newname .= '.png';

@@ -1,0 +1,9 @@
+# macOS
+.DS_Store
+**/.DS_Store
+
+# PHPUnit
+.phpunit.result.cache
+
+# Composer (uncomment if you don't want to commit vendor/)
+# /vendor/
